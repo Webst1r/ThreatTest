@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatTest - Application Resilience Testing Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --primary-light: #22d3ee;
+            --secondary: #8b5cf6;
+            --secondary-light: #a78bfa;
+            --accent: #f59e0b;
+            --accent-pink: #ec4899;
+            --bg-dark: #0a0e1a;
+            --bg-darker: #050810;
+            --bg-card: #141824;
+            --bg-hover: #1a1f2e;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --warning: #f59e0b;
+            --border: #1e293b;
+            --glow: rgba(6, 182, 212, 0.4);
+            --glow-purple: rgba(139, 92, 246, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+            animation: backgroundFloat 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-30px, 30px) rotate(240deg); }
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(20, 24, 36, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(139, 92, 246, 0.05));
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-secondary);
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            transition: width 0.3s;
+            opacity: 0.1;
+        }
+
+        .nav-item:hover::before {
+            width: 100%;
+        }
+
+        .nav-item:hover {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--primary-light);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: white;
+            border-radius: 4px 0 0 4px;
+            animation: activeGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes activeGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 28px;
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100% - 280px);
+        }
+
+        /* Top Header Bar */
+        .top-header {
+            background: rgba(20, 24, 36, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .site-selector {
+            position: relative;
+        }
+
+        .site-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .site-dropdown-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .site-dropdown-btn:hover::before {
+            opacity: 0.1;
+        }
+
+        .site-dropdown-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.3);
+        }
+
+        .site-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            z-index: 1;
+        }
+
+        .site-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .site-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .site-url {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .dropdown-arrow {
+            margin-left: 0.5rem;
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+        }
+
+        .site-dropdown-btn.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .site-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            left: 0;
+            min-width: 340px;
+            background: rgba(20, 24, 36, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(6, 182, 212, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .site-dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .site-item {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 1.125rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            position: relative;
+        }
+
+        .site-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+
+        .site-item:hover {
+            background: rgba(6, 182, 212, 0.1);
+            transform: translateX(4px);
+        }
+
+        .site-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .site-item.active {
+            background: rgba(6, 182, 212, 0.15);
+        }
+
+        .site-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .site-item .site-info {
+            flex: 1;
+        }
+
+        .site-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .site-status.offline {
+            background: var(--text-muted);
+            box-shadow: none;
+            animation: none;
+        }
+
+        .add-site-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.25rem;
+            margin: 0.5rem;
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            justify-content: center;
+        }
+
+        .add-site-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(20, 184, 166, 0.05);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-search {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-search:focus-within {
+            border-color: var(--primary);
+            background: rgba(6, 182, 212, 0.05);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+
+        .header-search input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            outline: none;
+            width: 220px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .header-search input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .user-menu {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-menu:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(20, 24, 36, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent-pink));
+            transform: translateX(-100%);
+            transition: transform 0.4s;
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .stat-card:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(6, 182, 212, 0.2),
+                inset 0 0 60px rgba(6, 182, 212, 0.05);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .stat-card:hover::after {
+            opacity: 1;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .stat-value {
+            font-size: 2.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            animation: statPulse 2s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes statPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            opacity: 0.6;
+            filter: drop-shadow(0 0 10px currentColor);
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Recent Tests Section */
+        .section {
+            background: rgba(20, 24, 36, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent-pink), var(--primary));
+            background-size: 400% 400%;
+            border-radius: 16px;
+            z-index: -1;
+            opacity: 0;
+            animation: gradientShift 8s ease infinite;
+            transition: opacity 0.4s;
+        }
+
+        .section:hover::before {
+            opacity: 0.3;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.4;
+            filter: drop-shadow(0 0 20px currentColor);
+            animation: emptyFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes emptyFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .site-name {
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-light), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95rem;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 12px 32px rgba(6, 182, 212, 0.4),
+                0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(6, 182, 212, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: rgba(20, 24, 36, 0.8);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+            font-weight: 600;
+            min-width: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            transform: translateX(-8px) scale(1.05);
+            box-shadow: 
+                0 12px 32px rgba(6, 182, 212, 0.4),
+                0 0 32px rgba(139, 92, 246, 0.3);
+        }
+
+        .action-icon {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 8px currentColor);
+        }
+
+        /* Test List */
+        .test-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .test-item {
+            background: rgba(10, 14, 26, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .test-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+
+        .test-item:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            transform: translateX(8px);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.2);
+        }
+
+        .test-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .test-status {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 16px currentColor;
+        }
+
+        .test-status.success {
+            background: var(--success);
+        }
+
+        .test-status.failed {
+            background: var(--danger);
+        }
+
+        .test-status.running {
+            background: var(--primary);
+            animation: spinPulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        @keyframes spinPulse {
+            0% { opacity: 1; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.7; transform: scale(1.3) rotate(180deg); }
+            100% { opacity: 1; transform: scale(1) rotate(360deg); }
+        }
+
+        .test-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .test-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .test-metric {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .test-metric strong {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border: 1px solid;
+            backdrop-filter: blur(10px);
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+        }
+
+        .badge.failed {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--danger);
+            border-color: rgba(244, 63, 94, 0.3);
+            box-shadow: 0 0 16px rgba(244, 63, 94, 0.2);
+        }
+
+        .badge.running {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--primary);
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 16px rgba(6, 182, 212, 0.2);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 16px rgba(6, 182, 212, 0.2); }
+            50% { box-shadow: 0 0 24px rgba(6, 182, 212, 0.4); }
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(6, 182, 212, 0.05);
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1), 0 0 20px rgba(6, 182, 212, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 300px;
+            background: var(--bg-darker);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary-dark), var(--primary-light), var(--secondary-light));
+            border-radius: 8px 8px 0 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .chart-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .chart-bar:hover::before {
+            opacity: 1;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(to top, var(--secondary), var(--primary-light));
+            transform: scaleY(1.08) scaleX(1.1);
+            box-shadow: 0 0 32px rgba(6, 182, 212, 0.6);
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: rgba(20, 24, 36, 0.95);
+            backdrop-filter: blur(40px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 
+                0 24px 64px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(6, 182, 212, 0.2),
+                inset 0 0 60px rgba(6, 182, 212, 0.05);
+            animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-darker);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            transition: width 0.3s;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(20, 24, 36, 0.95);
+            backdrop-filter: blur(40px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.5),
+                0 0 32px rgba(6, 182, 212, 0.2);
+            z-index: 2000;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.5),
+                0 0 32px rgba(16, 185, 129, 0.3);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.5),
+                0 0 32px rgba(244, 63, 94, 0.3);
+        }
+
+        .notification.info {
+            border-left: 4px solid var(--primary);
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.5),
+                0 0 32px rgba(6, 182, 212, 0.3);
+        }
+
+        .notification span:first-child {
+            font-size: 1.75rem;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        /* Security Monitor */
+        .threat-level {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--bg-darker);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .threat-indicator {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .threat-low {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .threat-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .threat-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Analytics Charts */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-darker);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .timeline-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            min-width: 100px;
+        }
+
+        .timeline-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-content p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .quick-actions {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🛡️</div>
+                    <div class="logo-text">
+                        <h1>ThreatTest</h1>
+                        <p>Resilience Testing</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-page="live-monitor">
+                    <span class="nav-icon">📡</span>
+                    <span>Live Monitor</span>
+                </button>
+                <button class="nav-item" data-page="security">
+                    <span class="nav-icon">🛡️</span>
+                    <span>Security Monitor</span>
+                </button>
+                <button class="nav-item" data-page="url-testing">
+                    <span class="nav-icon">🔗</span>
+                    <span>URL Testing</span>
+                </button>
+                <button class="nav-item" data-page="failure-testing">
+                    <span class="nav-icon">⚡</span>
+                    <span>Failure Testing</span>
+                </button>
+                <button class="nav-item" data-page="test-suites">
+                    <span class="nav-icon">📚</span>
+                    <span>Test Suites</span>
+                </button>
+                <button class="nav-item" data-page="analytics">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-item" data-page="reports">
+                    <span class="nav-icon">📄</span>
+                    <span>Reports</span>
+                </button>
+                <button class="nav-item" data-page="integrations">
+                    <span class="nav-icon">🔌</span>
+                    <span>Integrations</span>
+                </button>
+                <button class="nav-item" data-page="ci-cd">
+                    <span class="nav-icon">🔄</span>
+                    <span>CI/CD Setup</span>
+                </button>
+                <button class="nav-item" data-page="api-docs">
+                    <span class="nav-icon">📖</span>
+                    <span>API Docs</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header Bar -->
+            <div class="top-header">
+                <div class="header-left">
+                    <div class="site-selector">
+                        <button class="site-dropdown-btn" onclick="toggleSiteDropdown()">
+                            <div class="site-icon">🌐</div>
+                            <div class="site-info">
+                                <span class="site-name" id="currentSiteName">Production Site</span>
+                                <span class="site-url" id="currentSiteUrl">api.example.com</span>
+                            </div>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="site-dropdown-menu" id="siteDropdown">
+                            <div class="dropdown-header">
+                                <span class="dropdown-title">Your Sites</span>
+                            </div>
+                            <div class="dropdown-list">
+                                <button class="site-item active" onclick="selectSite('production')">
+                                    <div class="site-icon">🌐</div>
+                                    <div class="site-info">
+                                        <span class="site-name">Production Site</span>
+                                        <span class="site-url">api.example.com</span>
+                                    </div>
+                                    <div class="site-status"></div>
+                                </button>
+                                <button class="site-item" onclick="selectSite('staging')">
+                                    <div class="site-icon">🧪</div>
+                                    <div class="site-info">
+                                        <span class="site-name">Staging Environment</span>
+                                        <span class="site-url">staging.example.com</span>
+                                    </div>
+                                    <div class="site-status"></div>
+                                </button>
+                                <button class="site-item" onclick="selectSite('development')">
+                                    <div class="site-icon">💻</div>
+                                    <div class="site-info">
+                                        <span class="site-name">Development</span>
+                                        <span class="site-url">dev.example.com</span>
+                                    </div>
+                                    <div class="site-status"></div>
+                                </button>
+                                <button class="site-item" onclick="selectSite('testing')">
+                                    <div class="site-icon">🔬</div>
+                                    <div class="site-info">
+                                        <span class="site-name">Testing Lab</span>
+                                        <span class="site-url">test.example.com</span>
+                                    </div>
+                                    <div class="site-status offline"></div>
+                                </button>
+                            </div>
+                            <button class="add-site-btn" onclick="openModal('addSite')">
+                                <span>+</span>
+                                <span>Add New Site</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search tests...">
+                    </div>
+                    <div class="user-menu" title="User Menu">U</div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Tests</span>
+                            <span class="stat-icon">📊</span>
+                        </div>
+                        <div class="stat-value" id="totalTests">0</div>
+                        <div class="stat-change positive">
+                            <span>↑ 0%</span>
+                            <span>All time</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Passed</span>
+                            <span class="stat-icon">✓</span>
+                        </div>
+                        <div class="stat-value" id="passedTests">0</div>
+                        <div class="stat-change positive">
+                            <span>↑ 0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Failed</span>
+                            <span class="stat-icon">⚠️</span>
+                        </div>
+                        <div class="stat-value" id="failedTests">0</div>
+                        <div class="stat-change negative">
+                            <span>↓ 0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Avg Response</span>
+                            <span class="stat-icon">⏱️</span>
+                        </div>
+                        <div class="stat-value" id="avgResponse">0ms</div>
+                        <div class="stat-change">
+                            <span>Response time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Tests</h2>
+                        <button class="btn btn-secondary" onclick="openModal('viewAll')">View All →</button>
+                    </div>
+                    <div id="recentTestsList">
+                        <div class="empty-state">
+                            <div class="empty-icon">🔗</div>
+                            <p>No tests yet</p>
+                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openModal('urlTest')">Run your first test</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Monitor Page -->
+            <div class="page" id="live-monitor">
+                <h1 style="margin-bottom: 2rem;">Live Monitor</h1>
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Active Tests</h2>
+                        <span class="badge running">Live</span>
+                    </div>
+                    <div id="activeTestsList">
+                        <div class="empty-state">
+                            <div class="empty-icon">📡</div>
+                            <p>No active tests running</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Real-time Metrics</h2>
+                    <div class="stats-grid" style="margin-top: 1rem;">
+                        <div class="stat-card">
+                            <div class="stat-label">Requests/min</div>
+                            <div class="stat-value" id="requestsPerMin">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Error Rate</div>
+                            <div class="stat-value" id="errorRate">0%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg Latency</div>
+                            <div class="stat-value" id="avgLatency">0ms</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Monitor Page -->
+            <div class="page" id="security">
+                <h1 style="margin-bottom: 2rem;">Security Monitor</h1>
+                <div class="threat-level">
+                    <div class="threat-indicator threat-low">LOW</div>
+                    <div>
+                        <h3>Current Threat Level</h3>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem;">All systems operating normally</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Security Events</h2>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-time">10:24 AM</span>
+                            <div class="timeline-content">
+                                <h4>System Initialized</h4>
+                                <p>Security monitoring started</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Vulnerability Scans</h2>
+                    <div class="stats-grid" style="margin-top: 1rem;">
+                        <div class="stat-card">
+                            <div class="stat-label">Last Scan</div>
+                            <div class="stat-value" style="font-size: 1.25rem;">Never</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Issues Found</div>
+                            <div class="stat-value">0</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="runSecurityScan()">Run Security Scan</button>
+                </div>
+            </div>
+
+            <!-- URL Testing Page -->
+            <div class="page" id="url-testing">
+                <h1 style="margin-bottom: 2rem;">URL Testing</h1>
+                <div class="section">
+                    <h2 class="section-title">Test Configuration</h2>
+                    <form id="urlTestForm" onsubmit="runURLTest(event)">
+                        <div class="form-group">
+                            <label class="form-label">Target URL</label>
+                            <input type="url" class="form-input" placeholder="https://example.com" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Request Method</label>
+                                <select class="form-input">
+                                    <option>GET</option>
+                                    <option>POST</option>
+                                    <option>PUT</option>
+                                    <option>DELETE</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Timeout (ms)</label>
+                                <input type="number" class="form-input" value="5000">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Request Count</label>
+                                <input type="number" class="form-input" value="10" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Delay (ms)</label>
+                                <input type="number" class="form-input" value="100" min="0">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Run Test</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Failure Testing Page -->
+            <div class="page" id="failure-testing">
+                <h1 style="margin-bottom: 2rem;">Failure Testing</h1>
+                <div class="section">
+                    <h2 class="section-title">Chaos Engineering Scenarios</h2>
+                    <div class="test-list" style="margin-top: 1rem;">
+                        <div class="test-item" style="grid-template-columns: 1fr auto; cursor: pointer;" onclick="runFailureScenario('network')">
+                            <div>
+                                <h4>Network Latency Injection</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Simulate slow network conditions</p>
+                            </div>
+                            <button class="btn btn-primary">Run</button>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: 1fr auto; cursor: pointer;" onclick="runFailureScenario('timeout')">
+                            <div>
+                                <h4>Request Timeout</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Test timeout handling</p>
+                            </div>
+                            <button class="btn btn-primary">Run</button>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: 1fr auto; cursor: pointer;" onclick="runFailureScenario('error')">
+                            <div>
+                                <h4>Error Rate Injection</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Simulate random failures</p>
+                            </div>
+                            <button class="btn btn-primary">Run</button>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: 1fr auto; cursor: pointer;" onclick="runFailureScenario('load')">
+                            <div>
+                                <h4>High Load Simulation</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Test under heavy traffic</p>
+                            </div>
+                            <button class="btn btn-primary">Run</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Suites Page -->
+            <div class="page" id="test-suites">
+                <h1 style="margin-bottom: 2rem;">Test Suites</h1>
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Your Test Suites</h2>
+                        <button class="btn btn-primary" onclick="openModal('createSuite')">Create Suite</button>
+                    </div>
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <p>No test suites created yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page" id="analytics">
+                <h1 style="margin-bottom: 2rem;">Analytics</h1>
+                <div class="section">
+                    <h2 class="section-title">Test Performance Over Time</h2>
+                    <div class="chart-container">
+                        <div class="chart-bar" style="height: 60%;">
+                            <span class="chart-label">Mon</span>
+                        </div>
+                        <div class="chart-bar" style="height: 75%;">
+                            <span class="chart-label">Tue</span>
+                        </div>
+                        <div class="chart-bar" style="height: 45%;">
+                            <span class="chart-label">Wed</span>
+                        </div>
+                        <div class="chart-bar" style="height: 90%;">
+                            <span class="chart-label">Thu</span>
+                        </div>
+                        <div class="chart-bar" style="height: 65%;">
+                            <span class="chart-label">Fri</span>
+                        </div>
+                        <div class="chart-bar" style="height: 80%;">
+                            <span class="chart-label">Sat</span>
+                        </div>
+                        <div class="chart-bar" style="height: 55%;">
+                            <span class="chart-label">Sun</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-grid" style="margin-top: 2rem;">
+                    <div class="section">
+                        <h2 class="section-title">Success Rate</h2>
+                        <div class="stat-value" style="margin-top: 1rem;">100%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <h2 class="section-title">Average Response Time</h2>
+                        <div class="stat-value" style="margin-top: 1rem;">0ms</div>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem;">No data available yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div class="page" id="reports">
+                <h1 style="margin-bottom: 2rem;">Reports</h1>
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Generated Reports</h2>
+                        <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+                    </div>
+                    <div class="empty-state">
+                        <div class="empty-icon">📄</div>
+                        <p>No reports generated yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrations Page -->
+            <div class="page" id="integrations">
+                <h1 style="margin-bottom: 2rem;">Integrations</h1>
+                <div class="section">
+                    <h2 class="section-title">Available Integrations</h2>
+                    <div class="test-list" style="margin-top: 1rem;">
+                        <div class="test-item" style="grid-template-columns: auto 1fr auto;">
+                            <div style="font-size: 2rem;">📧</div>
+                            <div>
+                                <h4>Email Notifications</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Get alerts via email</p>
+                            </div>
+                            <button class="btn btn-secondary">Configure</button>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: auto 1fr auto;">
+                            <div style="font-size: 2rem;">💬</div>
+                            <div>
+                                <h4>Slack</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Send notifications to Slack</p>
+                            </div>
+                            <button class="btn btn-secondary">Configure</button>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: auto 1fr auto;">
+                            <div style="font-size: 2rem;">🔗</div>
+                            <div>
+                                <h4>Webhook</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Custom webhook integration</p>
+                            </div>
+                            <button class="btn btn-secondary">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CI/CD Setup Page -->
+            <div class="page" id="ci-cd">
+                <h1 style="margin-bottom: 2rem;">CI/CD Setup</h1>
+                <div class="section">
+                    <h2 class="section-title">Pipeline Integration</h2>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Integrate ThreatTest into your CI/CD pipeline</p>
+                    <div class="form-group">
+                        <label class="form-label">API Key</label>
+                        <input type="text" class="form-input" value="tt_live_xxxxxxxxxxxxxxxxxx" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Example Configuration</label>
+                        <pre style="background: var(--bg-darker); padding: 1rem; border-radius: 8px; overflow-x: auto; color: var(--primary-light);"><code>- name: Run ThreatTest
+  run: |
+    curl -X POST https://api.threattest.io/v1/run \
+      -H "Authorization: Bearer ${{ secrets.THREATTEST_KEY }}" \
+      -d '{"suite_id": "your-suite-id"}'</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Docs Page -->
+            <div class="page" id="api-docs">
+                <h1 style="margin-bottom: 2rem;">API Documentation</h1>
+                <div class="section">
+                    <h2 class="section-title">Getting Started</h2>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">
+                        The ThreatTest API allows you to programmatically run tests, retrieve results, and manage your testing infrastructure.
+                    </p>
+                    <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Authentication</h3>
+                    <pre style="background: var(--bg-darker); padding: 1rem; border-radius: 8px; overflow-x: auto; color: var(--primary-light);"><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+                    
+                    <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Endpoints</h3>
+                    <div class="test-list">
+                        <div class="test-item" style="grid-template-columns: auto 1fr;">
+                            <div class="badge success">GET</div>
+                            <div>
+                                <h4>/v1/tests</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">List all tests</p>
+                            </div>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: auto 1fr;">
+                            <div class="badge running">POST</div>
+                            <div>
+                                <h4>/v1/tests/run</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Run a new test</p>
+                            </div>
+                        </div>
+                        <div class="test-item" style="grid-template-columns: auto 1fr;">
+                            <div class="badge success">GET</div>
+                            <div>
+                                <h4>/v1/tests/:id</h4>
+                                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Get test details</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <!-- End Content Area -->
+        </main>
+
+        <!-- Quick Actions (shown only on larger screens) -->
+        <div class="quick-actions">
+            <button class="action-btn" onclick="openModal('urlTest')">
+                <span class="action-icon">🔗</span>
+                <span>Test URLs</span>
+            </button>
+            <button class="action-btn" onclick="switchPage('failure-testing')">
+                <span class="action-icon">⚡</span>
+                <span>Failure Scenarios</span>
+            </button>
+            <button class="action-btn" onclick="openModal('createSuite')">
+                <span class="action-icon">📚</span>
+                <span>Test Suites</span>
+            </button>
+            <button class="action-btn" onclick="switchPage('security')">
+                <span class="action-icon">🛡️</span>
+                <span>Security</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="urlTestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Quick URL Test</h2>
+                <button class="modal-close" onclick="closeModal('urlTest')">&times;</button>
+            </div>
+            <form onsubmit="runQuickTest(event)">
+                <div class="form-group">
+                    <label class="form-label">URL to Test</label>
+                    <input type="url" class="form-input" placeholder="https://example.com/api" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Test Name</label>
+                    <input type="text" class="form-input" placeholder="My API Test" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Run Test</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addSiteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Site</h2>
+                <button class="modal-close" onclick="closeModal('addSite')">&times;</button>
+            </div>
+            <form onsubmit="addNewSite(event)">
+                <div class="form-group">
+                    <label class="form-label">Site Name</label>
+                    <input type="text" class="form-input" placeholder="My Application" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Base URL</label>
+                    <input type="url" class="form-input" placeholder="https://api.example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Environment</label>
+                    <select class="form-input">
+                        <option>Production</option>
+                        <option>Staging</option>
+                        <option>Development</option>
+                        <option>Testing</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Site</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Site Dropdown Management
+        let currentSite = {
+            name: 'Production Site',
+            url: 'api.example.com',
+            icon: '🌐'
+        };
+
+        function toggleSiteDropdown() {
+            const dropdown = document.getElementById('siteDropdown');
+            const btn = document.querySelector('.site-dropdown-btn');
+            
+            dropdown.classList.toggle('active');
+            btn.classList.toggle('active');
+        }
+
+        function selectSite(siteType) {
+            const sites = {
+                production: {
+                    name: 'Production Site',
+                    url: 'api.example.com',
+                    icon: '🌐'
+                },
+                staging: {
+                    name: 'Staging Environment',
+                    url: 'staging.example.com',
+                    icon: '🧪'
+                },
+                development: {
+                    name: 'Development',
+                    url: 'dev.example.com',
+                    icon: '💻'
+                },
+                testing: {
+                    name: 'Testing Lab',
+                    url: 'test.example.com',
+                    icon: '🔬'
+                }
+            };
+
+            currentSite = sites[siteType];
+            
+            document.getElementById('currentSiteName').textContent = currentSite.name;
+            document.getElementById('currentSiteUrl').textContent = currentSite.url;
+            document.querySelector('.site-dropdown-btn .site-icon').textContent = currentSite.icon;
+            
+            // Update active state
+            document.querySelectorAll('.site-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.site-item').classList.add('active');
+            
+            toggleSiteDropdown();
+            showNotification(`Switched to ${currentSite.name}`, 'success');
+        }
+
+        function addNewSite(event) {
+            event.preventDefault();
+            const form = event.target;
+            const siteName = form.querySelectorAll('input')[0].value;
+            
+            closeModal('addSite');
+            showNotification(`Site "${siteName}" added successfully!`, 'success');
+            form.reset();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('siteDropdown');
+            const btn = document.querySelector('.site-dropdown-btn');
+            
+            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('active');
+                btn.classList.remove('active');
+            }
+        });
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const pages = document.querySelectorAll('.page');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const pageId = item.dataset.page;
+                switchPage(pageId);
+            });
+        });
+
+        function switchPage(pageId) {
+            // Update active nav item
+            navItems.forEach(item => {
+                if (item.dataset.page === pageId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Update active page
+            pages.forEach(page => {
+                if (page.id === pageId) {
+                    page.classList.add('active');
+                } else {
+                    page.classList.remove('active');
+                }
+            });
+        }
+
+        // Modal Management
+        function openModal(modalType) {
+            const modal = document.getElementById(modalType + 'Modal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(modalType) {
+            const modal = document.getElementById(modalType + 'Modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Test Data Storage
+        let tests = [];
+        let testIdCounter = 1;
+
+        // Run URL Test
+        function runURLTest(event) {
+            event.preventDefault();
+            const form = event.target;
+            const url = form.querySelector('input[type="url"]').value;
+            const method = form.querySelector('select').value;
+            const requestCount = parseInt(form.querySelectorAll('input[type="number"]')[1].value);
+            
+            showNotification('Test started successfully!', 'success');
+            
+            // Simulate test execution
+            const testId = 'test_' + testIdCounter++;
+            const test = {
+                id: testId,
+                url: url,
+                method: method,
+                status: 'running',
+                startTime: new Date(),
+                requests: requestCount,
+                passed: 0,
+                failed: 0
+            };
+            
+            tests.push(test);
+            updateDashboard();
+            
+            // Simulate test completion
+            setTimeout(() => {
+                const successRate = 0.8 + Math.random() * 0.2;
+                test.passed = Math.floor(requestCount * successRate);
+                test.failed = requestCount - test.passed;
+                test.status = test.failed === 0 ? 'success' : 'failed';
+                test.avgResponse = Math.floor(50 + Math.random() * 200);
+                test.endTime = new Date();
+                
+                updateDashboard();
+                showNotification(`Test completed: ${test.passed}/${requestCount} passed`, test.status === 'success' ? 'success' : 'error');
+            }, 3000 + Math.random() * 2000);
+        }
+
+        // Run Quick Test
+        function runQuickTest(event) {
+            event.preventDefault();
+            const form = event.target;
+            const url = form.querySelector('input[type="url"]').value;
+            const name = form.querySelectorAll('input')[1].value;
+            
+            closeModal('urlTest');
+            showNotification(`Running test: ${name}`, 'info');
+            
+            const testId = 'test_' + testIdCounter++;
+            const test = {
+                id: testId,
+                name: name,
+                url: url,
+                method: 'GET',
+                status: 'running',
+                startTime: new Date(),
+                requests: 10,
+                passed: 0,
+                failed: 0
+            };
+            
+            tests.push(test);
+            updateDashboard();
+            
+            setTimeout(() => {
+                test.passed = Math.floor(8 + Math.random() * 2);
+                test.failed = test.requests - test.passed;
+                test.status = test.failed === 0 ? 'success' : 'failed';
+                test.avgResponse = Math.floor(50 + Math.random() * 200);
+                test.endTime = new Date();
+                
+                updateDashboard();
+                showNotification(`Test "${name}" completed`, test.status === 'success' ? 'success' : 'error');
+            }, 3000);
+            
+            form.reset();
+        }
+
+        // Run Failure Scenario
+        function runFailureScenario(type) {
+            const scenarios = {
+                network: 'Network Latency Test',
+                timeout: 'Timeout Handling Test',
+                error: 'Error Rate Test',
+                load: 'High Load Test'
+            };
+            
+            showNotification(`Starting ${scenarios[type]}`, 'info');
+            
+            const testId = 'test_' + testIdCounter++;
+            const test = {
+                id: testId,
+                name: scenarios[type],
+                url: 'chaos-test://' + type,
+                method: 'CHAOS',
+                status: 'running',
+                startTime: new Date(),
+                requests: 100,
+                passed: 0,
+                failed: 0
+            };
+            
+            tests.push(test);
+            updateDashboard();
+            
+            setTimeout(() => {
+                const successRate = 0.7 + Math.random() * 0.25;
+                test.passed = Math.floor(test.requests * successRate);
+                test.failed = test.requests - test.passed;
+                test.status = test.failed < 20 ? 'success' : 'failed';
+                test.avgResponse = Math.floor(100 + Math.random() * 500);
+                test.endTime = new Date();
+                
+                updateDashboard();
+                showNotification(`${scenarios[type]} completed`, test.status === 'success' ? 'success' : 'error');
+            }, 5000);
+        }
+
+        // Security Scan
+        function runSecurityScan() {
+            showNotification('Security scan initiated', 'info');
+            
+            setTimeout(() => {
+                showNotification('Security scan completed: No vulnerabilities found', 'success');
+            }, 4000);
+        }
+
+        // Generate Report
+        function generateReport() {
+            showNotification('Generating report...', 'info');
+            
+            setTimeout(() => {
+                showNotification('Report generated successfully', 'success');
+            }, 2000);
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const totalTests = tests.length;
+            const passedTests = tests.filter(t => t.status === 'success').length;
+            const failedTests = tests.filter(t => t.status === 'failed').length;
+            
+            let totalRequests = 0;
+            let totalResponseTime = 0;
+            let completedTests = 0;
+            
+            tests.forEach(test => {
+                if (test.avgResponse) {
+                    totalRequests += test.requests;
+                    totalResponseTime += test.avgResponse * test.requests;
+                    completedTests++;
+                }
+            });
+            
+            const avgResponse = completedTests > 0 ? Math.floor(totalResponseTime / totalRequests) : 0;
+            
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passedTests').textContent = passedTests;
+            document.getElementById('failedTests').textContent = failedTests;
+            document.getElementById('avgResponse').textContent = avgResponse + 'ms';
+            
+            // Update recent tests list
+            const recentTestsList = document.getElementById('recentTestsList');
+            if (tests.length > 0) {
+                const recentTests = tests.slice(-5).reverse();
+                recentTestsList.innerHTML = '<div class="test-list">' + recentTests.map(test => `
+                    <div class="test-item">
+                        <div class="test-status ${test.status}"></div>
+                        <div class="test-info">
+                            <h4>${test.name || test.url}</h4>
+                            <p>${test.method} • ${test.requests} requests</p>
+                        </div>
+                        <div class="test-metric">
+                            <strong>${test.passed}</strong> passed
+                        </div>
+                        <div class="test-metric">
+                            <strong>${test.failed}</strong> failed
+                        </div>
+                        <span class="badge ${test.status}">${test.status}</span>
+                    </div>
+                `).join('') + '</div>';
+            }
+            
+            // Update live monitor
+            const runningTests = tests.filter(t => t.status === 'running');
+            const activeTestsList = document.getElementById('activeTestsList');
+            
+            if (runningTests.length > 0) {
+                activeTestsList.innerHTML = '<div class="test-list">' + runningTests.map(test => `
+                    <div class="test-item">
+                        <div class="test-status running"></div>
+                        <div class="test-info">
+                            <h4>${test.name || test.url}</h4>
+                            <p>Running...</p>
+                        </div>
+                        <div class="progress-bar" style="width: 200px;">
+                            <div class="progress-fill" style="width: ${Math.random() * 100}%;"></div>
+                        </div>
+                    </div>
+                `).join('') + '</div>';
+            } else {
+                activeTestsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📡</div>
+                        <p>No active tests running</p>
+                    </div>
+                `;
+            }
+            
+            // Update real-time metrics
+            document.getElementById('requestsPerMin').textContent = runningTests.length * 10;
+            document.getElementById('errorRate').textContent = failedTests > 0 ? Math.floor((failedTests / totalTests) * 100) + '%' : '0%';
+            document.getElementById('avgLatency').textContent = avgResponse + 'ms';
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span style="font-size: 1.5rem;">${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</span>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s reverse';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize
+        updateDashboard();
+        
+        // Demo: Add some test data after page load
+        setTimeout(() => {
+            showNotification('Welcome to ThreatTest! Try running your first test.', 'info');
+        }, 1000);
+    </script>
+</body>
+</html>
