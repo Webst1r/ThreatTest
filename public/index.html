@@ -364,6 +364,21 @@
             padding: 2rem;
         }
 
+        /* Page Management */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .page-title {
             font-size: 2rem;
             font-weight: 700;
@@ -1006,55 +1021,240 @@
                 </div>
             </header>
 
-            <!-- Content Area -->
+            <!-- Content Area with Multiple Pages -->
             <div class="content-area">
-                <h2 class="page-title">Dashboard</h2>
-                <p class="page-subtitle">Monitor your application's resilience and performance</p>
+                <!-- Dashboard Page -->
+                <div class="page active" id="page-dashboard">
+                    <h2 class="page-title">📊 Dashboard</h2>
+                    <p class="page-subtitle">Monitor your application's resilience and performance</p>
 
-                <!-- Stats Grid -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">📊</div>
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">📊</div>
+                            </div>
+                            <div class="stat-value" id="totalTests">0</div>
+                            <div class="stat-label">Total Tests</div>
                         </div>
-                        <div class="stat-value" id="totalTests">0</div>
-                        <div class="stat-label">Total Tests</div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">✓</div>
+                            </div>
+                            <div class="stat-value" style="color: var(--success);" id="passedTests">0</div>
+                            <div class="stat-label">Passed Tests</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #f43f5e, #e11d48);">✗</div>
+                            </div>
+                            <div class="stat-value" style="color: var(--danger);" id="failedTests">0</div>
+                            <div class="stat-label">Failed Tests</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">⚡</div>
+                            </div>
+                            <div class="stat-value" id="avgResponse">0ms</div>
+                            <div class="stat-label">Avg Response Time</div>
+                        </div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">✓</div>
+                    <!-- Recent Tests -->
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Recent Tests</h3>
                         </div>
-                        <div class="stat-value" style="color: var(--success);" id="passedTests">0</div>
-                        <div class="stat-label">Passed Tests</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #f43f5e, #e11d48);">✗</div>
+                        <div id="recentTestsList">
+                            <div class="empty-state">
+                                <div class="empty-icon">📋</div>
+                                <p>No tests run yet. Click the + button to create your first test!</p>
+                            </div>
                         </div>
-                        <div class="stat-value" style="color: var(--danger);" id="failedTests">0</div>
-                        <div class="stat-label">Failed Tests</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">⚡</div>
-                        </div>
-                        <div class="stat-value" id="avgResponse">0ms</div>
-                        <div class="stat-label">Avg Response Time</div>
                     </div>
                 </div>
 
-                <!-- Recent Tests -->
-                <div class="activity-section">
-                    <div class="section-header">
-                        <h3 class="section-title">Recent Tests</h3>
+                <!-- Live Monitor Page -->
+                <div class="page" id="page-live">
+                    <h2 class="page-title">📡 Live Monitor</h2>
+                    <p class="page-subtitle">Real-time test execution monitoring</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">Active Tests</h3>
+                            <div class="stat-value" id="activeTests">0</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Tests currently running</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">Tests/Minute</h3>
+                            <div class="stat-value">--</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Execution rate</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">Current Errors</h3>
+                            <div class="stat-value" style="color: var(--danger);">0</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Errors detected</p>
+                        </div>
                     </div>
-                    <div id="recentTestsList">
-                        <div class="empty-state">
-                            <div class="empty-icon">📋</div>
-                            <p>No tests run yet. Click the + button to create your first test!</p>
+                    <div class="activity-section" style="margin-top: 2rem;">
+                        <div class="section-header">
+                            <h3 class="section-title">Live Test Queue</h3>
+                        </div>
+                        <div id="liveQueue" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <p>No active tests running. Start a test from the + button to see live monitoring.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Monitor Page -->
+                <div class="page" id="page-security">
+                    <h2 class="page-title">🛡️ Security Monitor</h2>
+                    <p class="page-subtitle">Security scanning and vulnerability detection</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">✓ Security Scans</h3>
+                            <div class="stat-value">0</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Completed scans</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">🔴 Vulnerabilities</h3>
+                            <div class="stat-value" style="color: var(--success);">0</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Found issues</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">📊 Pass Rate</h3>
+                            <div class="stat-value">100%</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Security checks passed</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="runSecurityScan()" style="margin-top: 2rem; padding: 1rem 2rem;">
+                        Start Security Scan
+                    </button>
+                </div>
+
+                <!-- URL Testing Page -->
+                <div class="page" id="page-url">
+                    <h2 class="page-title">🔗 URL Testing</h2>
+                    <p class="page-subtitle">Quick URL endpoint health checks and testing</p>
+                    <button class="btn btn-primary" onclick="openModal('urlTest')" style="margin-bottom: 2rem; padding: 1rem 2rem;">
+                        + New URL Test
+                    </button>
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h3 class="section-title">URL Test History</h3>
+                        </div>
+                        <div id="urlTestsList" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <p>No URL tests run yet. Create a test to get started.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Failure Testing Page -->
+                <div class="page" id="page-failure">
+                    <h2 class="page-title">⚡ Failure Testing</h2>
+                    <p class="page-subtitle">Test application resilience under failure scenarios</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('network');">
+                            🌐 Network Latency
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('timeout');">
+                            ⏱️ Timeout Test
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('error');">
+                            ❌ Error Rate Test
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('load');">
+                            🔥 High Load Test
+                        </button>
+                    </div>
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Failure Test Results</h3>
+                        </div>
+                        <div id="failureTestsList" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <p>No failure tests run yet. Click above to start testing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Suites Page -->
+                <div class="page" id="page-suites">
+                    <h2 class="page-title">📚 Test Suites</h2>
+                    <p class="page-subtitle">Manage and execute test suites</p>
+                    <button class="btn btn-primary" style="margin-bottom: 2rem; padding: 1rem 2rem;">
+                        + Create Test Suite
+                    </button>
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Your Test Suites</h3>
+                        </div>
+                        <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <p>No test suites created yet. Create one to organize your tests.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Page -->
+                <div class="page" id="page-analytics">
+                    <h2 class="page-title">📈 Analytics</h2>
+                    <p class="page-subtitle">Detailed test metrics and performance analytics</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">Success Rate</h3>
+                            <div class="stat-value" style="color: var(--success);">100%</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">All tests passed</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">Avg Response</h3>
+                            <div class="stat-value" id="analyticsAvgResponse">-- ms</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Average response time</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 style="margin-bottom: 1rem;">Total Requests</h3>
+                            <div class="stat-value" id="analyticsRequests">0</div>
+                            <p style="color: var(--text-secondary); margin-top: 0.5rem;">Across all tests</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div class="page" id="page-reports">
+                    <h2 class="page-title">📄 Reports</h2>
+                    <p class="page-subtitle">Generate and view test reports</p>
+                    <button class="btn btn-primary" style="margin-bottom: 2rem; padding: 1rem 2rem;">
+                        📥 Generate Report
+                    </button>
+                    <div class="activity-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Recent Reports</h3>
+                        </div>
+                        <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <p>No reports generated yet. Create one to see report history.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrations Page -->
+                <div class="page" id="page-integrations">
+                    <h2 class="page-title">🔌 Integrations</h2>
+                    <p class="page-subtitle">Connect external services and tools</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div class="stat-card" style="cursor: pointer; transition: all 0.3s ease;">
+                            <h3 style="margin-bottom: 0.5rem;">🔗 Slack</h3>
+                            <p style="color: var(--text-secondary);">Send notifications to Slack</p>
+                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Connect</button>
+                        </div>
+                        <div class="stat-card" style="cursor: pointer; transition: all 0.3s ease;">
+                            <h3 style="margin-bottom: 0.5rem;">📧 Email</h3>
+                            <p style="color: var(--text-secondary);">Email test reports</p>
+                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Configure</button>
+                        </div>
+                        <div class="stat-card" style="cursor: pointer; transition: all 0.3s ease;">
+                            <h3 style="margin-bottom: 0.5rem;">📊 Webhook</h3>
+                            <p style="color: var(--text-secondary);">Send data via webhooks</p>
+                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Setup</button>
                         </div>
                     </div>
                 </div>
@@ -1208,10 +1408,24 @@
 
         // Switch Page
         function switchPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active');
+            });
+            
+            // Remove active class from all nav items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.target.closest('.nav-item').closest('.nav-item').classList.add('active');
+            
+            // Show the selected page
+            const pageElement = document.getElementById('page-' + page);
+            if (pageElement) {
+                pageElement.classList.add('active');
+            }
+            
+            // Add active class to clicked nav item
+            event.target.closest('.nav-item').classList.add('active');
             
             showNotification(`Navigated to ${page}`, 'info');
         }
