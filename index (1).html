@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatTest - Application Resilience Testing Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --primary-light: #22d3ee;
+            --secondary: #8b5cf6;
+            --secondary-light: #a78bfa;
+            --accent: #f59e0b;
+            --accent-pink: #ec4899;
+            --bg-dark: #0a0e1a;
+            --bg-darker: #050810;
+            --bg-card: #141824;
+            --bg-hover: #1a1f2e;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --warning: #f59e0b;
+            --border: #1e293b;
+            --glow: rgba(6, 182, 212, 0.4);
+            --glow-purple: rgba(139, 92, 246, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+            animation: backgroundFloat 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-30px, 30px) rotate(240deg); }
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(20, 24, 36, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+        }
+
+        .sidebar.collapsed + .sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(139, 92, 246, 0.05));
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-secondary);
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            transition: width 0.3s;
+            opacity: 0.1;
+        }
+
+        .nav-item:hover::before {
+            width: 100%;
+        }
+
+        .nav-item:hover {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--primary-light);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+            transform: translateX(4px);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 28px;
+            text-align: center;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            width: calc(100% - 280px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: rgba(20, 24, 36, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .site-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .site-selector:hover {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        }
+
+        .site-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .site-info h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .site-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            min-width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus-within {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .search-bar input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            outline: none;
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent-pink));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* Floating Action Buttons - IMPROVED */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .fab-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .fab-menu.active {
+            max-height: 500px;
+        }
+
+        .fab-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            transform: translateX(0);
+        }
+
+        .fab-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(6, 182, 212, 0.6);
+        }
+
+        .fab-button-icon {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-main {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            padding: 0;
+            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .fab-main:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .fab-main.active {
+            transform: rotate(45deg);
+            background: linear-gradient(135deg, var(--danger), var(--accent-pink));
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(20, 24, 36, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Recent Activity */
+        .activity-section {
+            background: rgba(20, 24, 36, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .test-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .test-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .test-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .test-status.success {
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
+        }
+
+        .test-status.failed {
+            background: var(--danger);
+            box-shadow: 0 0 12px var(--danger);
+        }
+
+        .test-status.running {
+            background: var(--warning);
+            box-shadow: 0 0 12px var(--warning);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .test-info {
+            flex: 1;
+        }
+
+        .test-info h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .test-info p {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .test-metric {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .test-metric strong {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .badge.failed {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--danger);
+        }
+
+        .badge.running {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9375rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+            min-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .notification.error {
+            border-color: var(--danger);
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .notification.info {
+            border-color: var(--primary);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-toggle {
+                display: flex !important;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .fab-container {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .fab-main {
+                width: 56px;
+                height: 56px;
+            }
+
+            .search-bar {
+                min-width: auto;
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🛡️</div>
+                    <div class="logo-text">
+                        <h1>ThreatTest</h1>
+                        <p>Resilience Testing</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchPage('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('live')">
+                    <span class="nav-icon">📡</span>
+                    <span>Live Monitor</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('security')">
+                    <span class="nav-icon">🛡️</span>
+                    <span>Security Monitor</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('url')">
+                    <span class="nav-icon">🔗</span>
+                    <span>URL Testing</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('failure')">
+                    <span class="nav-icon">⚡</span>
+                    <span>Failure Testing</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('suites')">
+                    <span class="nav-icon">📚</span>
+                    <span>Test Suites</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('analytics')">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('reports')">
+                    <span class="nav-icon">📄</span>
+                    <span>Reports</span>
+                </button>
+                <button class="nav-item" onclick="switchPage('integrations')">
+                    <span class="nav-icon">🔌</span>
+                    <span>Integrations</span>
+                </button>
+            </nav>
+        </aside>
+
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="site-selector">
+                        <div class="site-icon">🌐</div>
+                        <div class="site-info">
+                            <h3>Production Site</h3>
+                            <p>api.example.com</p>
+                        </div>
+                    </div>
+
+                    <div class="search-bar">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search tests, URLs, or reports...">
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="user-avatar">U</div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <h2 class="page-title">Dashboard</h2>
+                <p class="page-subtitle">Monitor your application's resilience and performance</p>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">📊</div>
+                        </div>
+                        <div class="stat-value" id="totalTests">0</div>
+                        <div class="stat-label">Total Tests</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">✓</div>
+                        </div>
+                        <div class="stat-value" style="color: var(--success);" id="passedTests">0</div>
+                        <div class="stat-label">Passed Tests</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #f43f5e, #e11d48);">✗</div>
+                        </div>
+                        <div class="stat-value" style="color: var(--danger);" id="failedTests">0</div>
+                        <div class="stat-label">Failed Tests</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">⚡</div>
+                        </div>
+                        <div class="stat-value" id="avgResponse">0ms</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                </div>
+
+                <!-- Recent Tests -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Recent Tests</h3>
+                    </div>
+                    <div id="recentTestsList">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p>No tests run yet. Click the + button to create your first test!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Action Buttons - IMPROVED -->
+        <div class="fab-container">
+            <div class="fab-menu" id="fabMenu">
+                <button class="fab-button" onclick="openModal('urlTest')">
+                    <span class="fab-button-icon">🔗</span>
+                    <span>Test URLs</span>
+                </button>
+                <button class="fab-button" onclick="openModal('loadTest')">
+                    <span class="fab-button-icon">💪</span>
+                    <span>Load Test</span>
+                </button>
+                <button class="fab-button" onclick="openModal('failureScenario')">
+                    <span class="fab-button-icon">⚡</span>
+                    <span>Failure Scenarios</span>
+                </button>
+                <button class="fab-button" onclick="runSecurityScan()">
+                    <span class="fab-button-icon">🛡️</span>
+                    <span>Security Scan</span>
+                </button>
+            </div>
+            <button class="fab-button fab-main" id="fabMain" onclick="toggleFabMenu()">
+                +
+            </button>
+        </div>
+
+        <!-- Modals -->
+        <!-- URL Test Modal -->
+        <div class="modal" id="urlTestModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">🔗 Quick URL Test</h3>
+                    <button class="close-btn" onclick="closeModal('urlTest')">×</button>
+                </div>
+                <form onsubmit="runQuickTest(event)">
+                    <div class="form-group">
+                        <label>Test Name</label>
+                        <input type="text" placeholder="e.g., Homepage Load Test" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Target URL</label>
+                        <input type="url" placeholder="https://api.example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>HTTP Method</label>
+                        <select>
+                            <option>GET</option>
+                            <option>POST</option>
+                            <option>PUT</option>
+                            <option>DELETE</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('urlTest')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Run Test</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Load Test Modal -->
+        <div class="modal" id="loadTestModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">💪 Load Test Configuration</h3>
+                    <button class="close-btn" onclick="closeModal('loadTest')">×</button>
+                </div>
+                <form onsubmit="runLoadTest(event)">
+                    <div class="form-group">
+                        <label>Target URL</label>
+                        <input type="url" placeholder="https://api.example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Requests</label>
+                        <input type="number" placeholder="100" min="1" max="10000" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Concurrent Users</label>
+                        <input type="number" placeholder="10" min="1" max="1000" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Request Timeout (ms)</label>
+                        <input type="number" placeholder="5000" min="100" value="5000" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('loadTest')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Start Load Test</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Failure Scenario Modal -->
+        <div class="modal" id="failureScenarioModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">⚡ Failure Scenario Testing</h3>
+                    <button class="close-btn" onclick="closeModal('failureScenario')">×</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <button class="btn btn-primary" onclick="runFailureScenario('network'); closeModal('failureScenario')">
+                        🌐 Network Latency
+                    </button>
+                    <button class="btn btn-primary" onclick="runFailureScenario('timeout'); closeModal('failureScenario')">
+                        ⏱️ Timeout Test
+                    </button>
+                    <button class="btn btn-primary" onclick="runFailureScenario('error'); closeModal('failureScenario')">
+                        ❌ Error Rate Test
+                    </button>
+                    <button class="btn btn-primary" onclick="runFailureScenario('load'); closeModal('failureScenario')">
+                        🔥 High Load Test
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let tests = [];
+        let testIdCounter = 1;
+        let fabMenuOpen = false;
+
+        // API Configuration
+        const API_BASE_URL = '/api'; // Change this to your backend URL
+
+        // Toggle FAB Menu
+        function toggleFabMenu() {
+            fabMenuOpen = !fabMenuOpen;
+            const menu = document.getElementById('fabMenu');
+            const mainBtn = document.getElementById('fabMain');
+            
+            if (fabMenuOpen) {
+                menu.classList.add('active');
+                mainBtn.classList.add('active');
+            } else {
+                menu.classList.remove('active');
+                mainBtn.classList.remove('active');
+            }
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        // Switch Page
+        function switchPage(page) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            showNotification(`Navigated to ${page}`, 'info');
+        }
+
+        // Modal Functions
+        function openModal(type) {
+            const modals = {
+                'urlTest': 'urlTestModal',
+                'loadTest': 'loadTestModal',
+                'failureScenario': 'failureScenarioModal'
+            };
+            
+            const modalId = modals[type];
+            if (modalId) {
+                document.getElementById(modalId).classList.add('active');
+                toggleFabMenu(); // Close FAB menu when opening modal
+            }
+        }
+
+        function closeModal(type) {
+            const modals = {
+                'urlTest': 'urlTestModal',
+                'loadTest': 'loadTestModal',
+                'failureScenario': 'failureScenarioModal'
+            };
+            
+            const modalId = modals[type];
+            if (modalId) {
+                document.getElementById(modalId).classList.remove('active');
+            }
+        }
+
+        // Run Load Test
+        async function runLoadTest(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const url = formData.get('url') || form.querySelector('input[type="url"]').value;
+            const requests = parseInt(form.querySelectorAll('input[type="number"]')[0].value) || 100;
+            const concurrent = parseInt(form.querySelectorAll('input[type="number"]')[1].value) || 10;
+            const timeout = parseInt(form.querySelectorAll('input[type="number"]')[2].value) || 5000;
+            
+            closeModal('loadTest');
+            showNotification(`Starting load test with ${requests} requests...`, 'info');
+            
+            const testId = 'test_' + testIdCounter++;
+            const test = {
+                id: testId,
+                name: `Load Test - ${url}`,
+                url: url,
+                method: 'LOAD',
+                status: 'running',
+                startTime: new Date(),
+                requests: requests,
+                concurrent: concurrent,
+                timeout: timeout,
+                passed: 0,
+                failed: 0
+            };
+            
+            tests.push(test);
+            updateDashboard();
+            
+            // Simulate load test execution
+            setTimeout(() => {
+                const successRate = 0.85 + Math.random() * 0.1;
+                test.passed = Math.floor(requests * successRate);
+                test.failed = requests - test.passed;
+                test.status = test.failed < (requests * 0.1) ? 'success' : 'failed';
+                test.avgResponse = Math.floor(50 + Math.random() * 200);
+                test.endTime = new Date();
+                
+                updateDashboard();
+                showNotification(`Load test completed: ${test.passed}/${requests} passed`, test.status === 'success' ? 'success' : 'error');
+            }, 3000 + Math.random() * 2000);
+            
+            form.reset();
+        }
+
+        // Run Quick Test
+        async function runQuickTest(event) {
+            event.preventDefault();
+            const form = event.target;
+            const name = form.querySelectorAll('input')[0].value;
+            const url = form.querySelector('input[type="url"]').value;
+            const method = form.querySelector('select').value;
+            
+            closeModal('urlTest');
+            showNotification(`Running test: ${name}`, 'info');
+            
+            const testId = 'test_' + testIdCounter++;
+            const test = {
+                id: testId,
+                name: name,
+                url: url,
+                method: method,
+                status: 'running',
+                startTime: new Date(),
+                requests: 10,
+                passed: 0,
+                failed: 0
+            };
+            
+            tests.push(test);
+            updateDashboard();
+            
+            setTimeout(() => {
+                test.passed = Math.floor(8 + Math.random() * 2);
+                test.failed = test.requests - test.passed;
+                test.status = test.failed === 0 ? 'success' : 'failed';
+                test.avgResponse = Math.floor(50 + Math.random() * 200);
+                test.endTime = new Date();
+                
+                updateDashboard();
+                showNotification(`Test "${name}" completed`, test.status === 'success' ? 'success' : 'error');
+            }, 3000);
+            
+            form.reset();
+        }
+
+        // Run Failure Scenario
+        function runFailureScenario(type) {
+            const scenarios = {
+                network: 'Network Latency Test',
+                timeout: 'Timeout Handling Test',
+                error: 'Error Rate Test',
+                load: 'High Load Test'
+            };
+            
+            showNotification(`Starting ${scenarios[type]}`, 'info');
+            
+            const testId = 'test_' + testIdCounter++;
+            const test = {
+                id: testId,
+                name: scenarios[type],
+                url: 'chaos-test://' + type,
+                method: 'CHAOS',
+                status: 'running',
+                startTime: new Date(),
+                requests: 100,
+                passed: 0,
+                failed: 0
+            };
+            
+            tests.push(test);
+            updateDashboard();
+            
+            setTimeout(() => {
+                const successRate = 0.7 + Math.random() * 0.25;
+                test.passed = Math.floor(test.requests * successRate);
+                test.failed = test.requests - test.passed;
+                test.status = test.failed < 20 ? 'success' : 'failed';
+                test.avgResponse = Math.floor(100 + Math.random() * 500);
+                test.endTime = new Date();
+                
+                updateDashboard();
+                showNotification(`${scenarios[type]} completed`, test.status === 'success' ? 'success' : 'error');
+            }, 5000);
+        }
+
+        // Security Scan
+        function runSecurityScan() {
+            showNotification('Security scan initiated', 'info');
+            toggleFabMenu();
+            
+            setTimeout(() => {
+                showNotification('Security scan completed: No vulnerabilities found', 'success');
+            }, 4000);
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const totalTests = tests.length;
+            const passedTests = tests.filter(t => t.status === 'success').length;
+            const failedTests = tests.filter(t => t.status === 'failed').length;
+            
+            let totalRequests = 0;
+            let totalResponseTime = 0;
+            let completedTests = 0;
+            
+            tests.forEach(test => {
+                if (test.avgResponse) {
+                    totalRequests += test.requests;
+                    totalResponseTime += test.avgResponse * test.requests;
+                    completedTests++;
+                }
+            });
+            
+            const avgResponse = completedTests > 0 ? Math.floor(totalResponseTime / totalRequests) : 0;
+            
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passedTests').textContent = passedTests;
+            document.getElementById('failedTests').textContent = failedTests;
+            document.getElementById('avgResponse').textContent = avgResponse + 'ms';
+            
+            // Update recent tests list
+            const recentTestsList = document.getElementById('recentTestsList');
+            if (tests.length > 0) {
+                const recentTests = tests.slice(-5).reverse();
+                recentTestsList.innerHTML = '<div class="test-list">' + recentTests.map(test => `
+                    <div class="test-item">
+                        <div class="test-status ${test.status}"></div>
+                        <div class="test-info">
+                            <h4>${test.name || test.url}</h4>
+                            <p>${test.method} • ${test.requests} requests</p>
+                        </div>
+                        <div class="test-metric">
+                            <strong>${test.passed}</strong> passed
+                        </div>
+                        <div class="test-metric">
+                            <strong>${test.failed}</strong> failed
+                        </div>
+                        <span class="badge ${test.status}">${test.status}</span>
+                    </div>
+                `).join('') + '</div>';
+            }
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span style="font-size: 1.5rem;">${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</span>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s reverse';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Close FAB menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabMenuOpen && !fabContainer.contains(e.target)) {
+                toggleFabMenu();
+            }
+        });
+
+        // Initialize
+        updateDashboard();
+        
+        // Demo: Add welcome notification
+        setTimeout(() => {
+            showNotification('Welcome to ThreatTest! Click + to run your first test.', 'info');
+        }, 1000);
+    </script>
+</body>
+</html>
