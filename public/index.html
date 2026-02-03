@@ -1211,7 +1211,7 @@
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.target.closest('.nav-item').classList.add('active');
+            event.target.closest('.nav-item').closest('.nav-item').classList.add('active');
             
             showNotification(`Navigated to ${page}`, 'info');
         }
