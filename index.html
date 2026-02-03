@@ -394,13 +394,18 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
         }
 
         .fab-menu.active {
-            max-height: 500px;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
         }
 
         .fab-button {
@@ -419,6 +424,28 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             transform: translateX(0);
+            opacity: 0;
+            animation: fabSlideIn 0.3s ease forwards;
+        }
+
+        .fab-menu.active .fab-button {
+            opacity: 1;
+        }
+
+        .fab-button:nth-child(1) { animation-delay: 0.05s; }
+        .fab-button:nth-child(2) { animation-delay: 0.1s; }
+        .fab-button:nth-child(3) { animation-delay: 0.15s; }
+        .fab-button:nth-child(4) { animation-delay: 0.2s; }
+
+        @keyframes fabSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
         }
 
         .fab-button:hover {
@@ -444,6 +471,8 @@
             padding: 0;
             box-shadow: 0 8px 32px rgba(6, 182, 212, 0.5);
             transition: all 0.3s ease;
+            z-index: 1001;
+            position: relative;
         }
 
         .fab-main:hover {
@@ -1068,15 +1097,15 @@
                 <form onsubmit="runQuickTest(event)">
                     <div class="form-group">
                         <label>Test Name</label>
-                        <input type="text" placeholder="e.g., Homepage Load Test" required>
+                        <input type="text" name="testName" placeholder="e.g., Homepage Load Test" required>
                     </div>
                     <div class="form-group">
                         <label>Target URL</label>
-                        <input type="url" placeholder="https://api.example.com" required>
+                        <input type="url" name="url" placeholder="https://api.example.com" required>
                     </div>
                     <div class="form-group">
                         <label>HTTP Method</label>
-                        <select>
+                        <select name="method">
                             <option>GET</option>
                             <option>POST</option>
                             <option>PUT</option>
@@ -1101,19 +1130,19 @@
                 <form onsubmit="runLoadTest(event)">
                     <div class="form-group">
                         <label>Target URL</label>
-                        <input type="url" placeholder="https://api.example.com" required>
+                        <input type="url" name="url" placeholder="https://api.example.com" required>
                     </div>
                     <div class="form-group">
                         <label>Number of Requests</label>
-                        <input type="number" placeholder="100" min="1" max="10000" value="100" required>
+                        <input type="number" name="requests" placeholder="100" min="1" max="10000" value="100" required>
                     </div>
                     <div class="form-group">
                         <label>Concurrent Users</label>
-                        <input type="number" placeholder="10" min="1" max="1000" value="10" required>
+                        <input type="number" name="concurrent" placeholder="10" min="1" max="1000" value="10" required>
                     </div>
                     <div class="form-group">
                         <label>Request Timeout (ms)</label>
-                        <input type="number" placeholder="5000" min="100" value="5000" required>
+                        <input type="number" name="timeout" placeholder="5000" min="100" value="5000" required>
                     </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('loadTest')">Cancel</button>
@@ -1221,10 +1250,10 @@
             const form = event.target;
             const formData = new FormData(form);
             
-            const url = formData.get('url') || form.querySelector('input[type="url"]').value;
-            const requests = parseInt(form.querySelectorAll('input[type="number"]')[0].value) || 100;
-            const concurrent = parseInt(form.querySelectorAll('input[type="number"]')[1].value) || 10;
-            const timeout = parseInt(form.querySelectorAll('input[type="number"]')[2].value) || 5000;
+            const url = formData.get('url');
+            const requests = parseInt(formData.get('requests')) || 100;
+            const concurrent = parseInt(formData.get('concurrent')) || 10;
+            const timeout = parseInt(formData.get('timeout')) || 5000;
             
             closeModal('loadTest');
             showNotification(`Starting load test with ${requests} requests...`, 'info');
@@ -1267,9 +1296,10 @@
         async function runQuickTest(event) {
             event.preventDefault();
             const form = event.target;
-            const name = form.querySelectorAll('input')[0].value;
-            const url = form.querySelector('input[type="url"]').value;
-            const method = form.querySelector('select').value;
+            const formData = new FormData(form);
+            const name = formData.get('testName');
+            const url = formData.get('url');
+            const method = formData.get('method');
             
             closeModal('urlTest');
             showNotification(`Running test: ${name}`, 'info');
