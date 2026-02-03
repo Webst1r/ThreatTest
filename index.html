@@ -1603,6 +1603,7 @@
             const totalTests = tests.length;
             const passedTests = tests.filter(t => t.status === 'success').length;
             const failedTests = tests.filter(t => t.status === 'failed').length;
+            const runningTests = tests.filter(t => t.status === 'running').length;
             
             let totalRequests = 0;
             let totalResponseTime = 0;
@@ -1618,31 +1619,51 @@
             
             const avgResponse = completedTests > 0 ? Math.floor(totalResponseTime / totalRequests) : 0;
             
+            // Update Dashboard page
             document.getElementById('totalTests').textContent = totalTests;
             document.getElementById('passedTests').textContent = passedTests;
             document.getElementById('failedTests').textContent = failedTests;
             document.getElementById('avgResponse').textContent = avgResponse + 'ms';
             
+            // Update Live Monitor page
+            const activeTestsElement = document.getElementById('activeTests');
+            if (activeTestsElement) {
+                activeTestsElement.textContent = runningTests;
+            }
+            
+            // Update Analytics page
+            const analyticsAvgResponse = document.getElementById('analyticsAvgResponse');
+            if (analyticsAvgResponse) {
+                analyticsAvgResponse.textContent = avgResponse + ' ms';
+            }
+            
+            const analyticsRequests = document.getElementById('analyticsRequests');
+            if (analyticsRequests) {
+                analyticsRequests.textContent = totalRequests;
+            }
+            
             // Update recent tests list
             const recentTestsList = document.getElementById('recentTestsList');
-            if (tests.length > 0) {
-                const recentTests = tests.slice(-5).reverse();
-                recentTestsList.innerHTML = '<div class="test-list">' + recentTests.map(test => `
-                    <div class="test-item">
-                        <div class="test-status ${test.status}"></div>
-                        <div class="test-info">
-                            <h4>${test.name || test.url}</h4>
-                            <p>${test.method} • ${test.requests} requests</p>
+            if (recentTestsList) {
+                if (tests.length > 0) {
+                    const recentTests = tests.slice(-5).reverse();
+                    recentTestsList.innerHTML = '<div class="test-list">' + recentTests.map(test => `
+                        <div class="test-item">
+                            <div class="test-status ${test.status}"></div>
+                            <div class="test-info">
+                                <h4>${test.name || test.url}</h4>
+                                <p>${test.method} • ${test.requests} requests</p>
+                            </div>
+                            <div class="test-metric">
+                                <strong>${test.passed}</strong> passed
+                            </div>
+                            <div class="test-metric">
+                                <strong>${test.failed}</strong> failed
+                            </div>
+                            <span class="badge ${test.status}">${test.status}</span>
                         </div>
-                        <div class="test-metric">
-                            <strong>${test.passed}</strong> passed
-                        </div>
-                        <div class="test-metric">
-                            <strong>${test.failed}</strong> failed
-                        </div>
-                        <span class="badge ${test.status}">${test.status}</span>
-                    </div>
-                `).join('') + '</div>';
+                    `).join('') + '</div>';
+                }
             }
         }
 
