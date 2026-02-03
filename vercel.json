@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "buildCommand": "npm install",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "express",
+  "regions": ["iad1"],
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3000"
+  },
+  "public": false,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
