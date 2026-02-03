@@ -1705,6 +1705,13 @@
             document.getElementById('sidebar').classList.toggle('collapsed');
         }
 
+        // Close sidebar on mobile after clicking nav item
+        function closeSidebarOnMobile() {
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('collapsed');
+            }
+        }
+
         // Switch Page - OPTIMIZED
         function switchPage(page) {
             // Use requestAnimationFrame for smoother transition
@@ -1732,6 +1739,9 @@
                         navItem.classList.add('active');
                     }
                 }
+                
+                // Close sidebar on mobile after navigation
+                closeSidebarOnMobile();
             });
         }
 
