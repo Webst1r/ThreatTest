@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThreatTest - Application Resilience Testing Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Enterprise-grade Application Resilience Testing Platform - Powered by ThreatTest">
+    <meta name="theme-color" content="#06b6d4">
+    <title>ThreatTest - Enterprise Resilience Testing Platform</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2306b6d4'/><text x='50' y='60' font-size='70' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>T</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVJkEZSMUkrQ6usknoxYo8ytoJaDScvV1/jonJkP33I69omPBzwxfiRpzwvZnweYWL50OnNfaSRg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0;
@@ -13,34 +17,42 @@
         }
 
         :root {
-            --primary: #06b6d4;
-            --primary-dark: #0891b2;
-            --primary-light: #22d3ee;
-            --secondary: #8b5cf6;
-            --secondary-light: #a78bfa;
-            --accent: #f59e0b;
-            --accent-pink: #ec4899;
-            --bg-dark: #0a0e1a;
-            --bg-darker: #050810;
-            --bg-card: #141824;
-            --bg-hover: #1a1f2e;
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
+            --primary: #0088cc;
+            --primary-dark: #0066aa;
+            --primary-light: #00a8ff;
+            --secondary: #6b3fa0;
+            --secondary-light: #8b5fbf;
+            --accent: #ff6b35;
+            --accent-pink: #ff1744;
             --success: #10b981;
-            --danger: #f43f5e;
             --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f1419;
+            --bg-darker: #0a0e16;
+            --bg-card: #151b29;
+            --bg-hover: #1e2538;
+            --text-primary: #f5f7fa;
+            --text-secondary: #cbd5e1;
+            --text-muted: #718096;
             --border: #1e293b;
-            --glow: rgba(6, 182, 212, 0.4);
-            --glow-purple: rgba(139, 92, 246, 0.4);
+            --border-light: #334155;
+            --glow: rgba(0, 136, 204, 0.15);
+            --glow-purple: rgba(107, 63, 160, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
             overflow-x: hidden;
             position: relative;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body::before {
@@ -51,10 +63,10 @@
             width: 200%;
             height: 200%;
             background: 
-                radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
-            animation: backgroundFloat 20s ease-in-out infinite;
+                radial-gradient(circle at 20% 30%, rgba(0, 136, 204, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(107, 63, 160, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 23, 68, 0.05) 0%, transparent 50%);
+            animation: backgroundFloat 25s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
         }
@@ -65,6 +77,19 @@
             66% { transform: translate(-30px, 30px) rotate(240deg); }
         }
 
+        /* Professional Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; }
+        h3 { font-size: 1.5rem; }
+        h4 { font-size: 1.25rem; }
+        h5 { font-size: 1.125rem; }
+        h6 { font-size: 1rem; }
+
         .app-container {
             display: flex;
             min-height: 100vh;
@@ -73,16 +98,16 @@
         /* Sidebar */
         .sidebar {
             width: 280px;
-            background: rgba(20, 24, 36, 0.8);
+            background: linear-gradient(180deg, rgba(15, 20, 25, 0.95) 0%, rgba(10, 14, 22, 0.95) 100%);
             backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid var(--border);
             padding: 0;
             display: flex;
             flex-direction: column;
             position: fixed;
             height: 100vh;
             z-index: 100;
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
         }
 
@@ -95,14 +120,20 @@
             top: 20px;
             left: 20px;
             z-index: 101;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border: none;
             width: 44px;
             height: 44px;
-            border-radius: 12px;
+            border-radius: 10px;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 136, 204, 0.2);
+        }
             box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
             transition: all 0.3s ease;
             display: none;
@@ -132,15 +163,15 @@
         }
 
         .logo-icon {
-            width: 52px;
-            height: 52px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 14px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.75rem;
-            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 136, 204, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
             animation: logoFloat 3s ease-in-out infinite;
         }
 
@@ -150,21 +181,25 @@
         }
 
         .logo-text h1 {
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: -0.02em;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            font-weight: 800;
         }
 
         .logo-text p {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
+            font-size: 0.7rem;
+            color: var(--text-muted);
             margin-top: 0.25rem;
             font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .nav-menu {
@@ -209,24 +244,26 @@
         }
 
         .nav-item:hover {
-            background: rgba(6, 182, 212, 0.1);
+            background: rgba(0, 136, 204, 0.1);
             color: var(--primary-light);
             transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.15);
         }
 
         .nav-item.active {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 136, 204, 0.3);
             transform: translateX(4px);
         }
 
         .nav-icon {
-            font-size: 1.25rem;
-            width: 28px;
+            font-size: 1.1rem;
+            width: 24px;
             text-align: center;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Main Content */
@@ -245,9 +282,9 @@
 
         /* Top Header */
         .top-header {
-            background: rgba(20, 24, 36, 0.8);
+            background: rgba(15, 20, 25, 0.95);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border);
             padding: 1.25rem 2rem;
             position: sticky;
             top: 0;
@@ -255,7 +292,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .header-left {
@@ -380,17 +417,24 @@
         }
 
         .page-title {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-title i {
+            color: var(--primary);
         }
 
         .page-subtitle {
-            color: var(--text-secondary);
+            color: var(--text-muted);
             margin-bottom: 2rem;
+            font-size: 0.95rem;
+            font-weight: 400;
         }
 
         /* Floating Action Buttons - IMPROVED */
@@ -427,16 +471,16 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 12px 18px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border: none;
-            border-radius: 16px;
+            border-radius: 10px;
             color: white;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             transform: translateX(0);
             opacity: 0;
@@ -469,29 +513,34 @@
         }
 
         .fab-button-icon {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .fab-main {
-            width: 64px;
-            height: 64px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             padding: 0;
-            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.5);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+            transition: all 0.2s ease;
             z-index: 1001;
             position: relative;
         }
 
         .fab-main:hover {
-            transform: rotate(90deg) scale(1.1);
+            transform: scale(1.08);
+            box-shadow: 0 6px 16px rgba(0, 136, 204, 0.4);
         }
 
         .fab-main.active {
@@ -508,18 +557,30 @@
         }
 
         .stat-card {
-            background: rgba(20, 24, 36, 0.6);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.5) 0%, rgba(21, 27, 41, 0.5) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
             padding: 1.5rem;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 136, 204, 0.2), transparent);
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 136, 204, 0.1);
+            border-color: rgba(0, 136, 204, 0.3);
         }
 
         .stat-header {
@@ -532,32 +593,53 @@
         .stat-icon {
             width: 48px;
             height: 48px;
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* Recent Activity */
         .activity-section {
-            background: rgba(20, 24, 36, 0.6);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.4) 0%, rgba(21, 27, 41, 0.4) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
             padding: 1.5rem;
             margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 136, 204, 0.15), transparent);
         }
 
         .section-header {
@@ -568,8 +650,11 @@
         }
 
         .section-title {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
         }
 
         .test-list {
@@ -583,16 +668,17 @@
             align-items: center;
             gap: 1rem;
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.05) 0%, rgba(107, 63, 160, 0.03) 100%);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
         }
 
         .test-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.08) 0%, rgba(107, 63, 160, 0.05) 100%);
+            border-color: rgba(0, 136, 204, 0.2);
             transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 136, 204, 0.1);
         }
 
         .test-status {
@@ -604,23 +690,23 @@
 
         .test-status.success {
             background: var(--success);
-            box-shadow: 0 0 12px var(--success);
+            box-shadow: 0 0 10px var(--success);
         }
 
         .test-status.failed {
             background: var(--danger);
-            box-shadow: 0 0 12px var(--danger);
+            box-shadow: 0 0 10px var(--danger);
         }
 
         .test-status.running {
             background: var(--warning);
-            box-shadow: 0 0 12px var(--warning);
-            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--warning);
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; scale: 1; }
+            50% { opacity: 0.6; scale: 1.1; }
         }
 
         .test-info {
@@ -628,7 +714,7 @@
         }
 
         .test-info h4 {
-            font-size: 0.9375rem;
+            font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
         }
@@ -649,26 +735,31 @@
         }
 
         .badge {
-            padding: 0.375rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
         }
 
         .badge.success {
-            background: rgba(16, 185, 129, 0.15);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
             color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .badge.failed {
-            background: rgba(244, 63, 94, 0.15);
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.2) 0%, rgba(244, 63, 94, 0.05) 100%);
             color: var(--danger);
+            border: 1px solid rgba(244, 63, 94, 0.2);
         }
 
         .badge.running {
-            background: rgba(245, 158, 11, 0.15);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
             color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
         }
 
         /* Modal */
@@ -717,6 +808,41 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .modal {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                width: 100%;
+                max-width: 100%;
+                max-height: calc(100vh - 2rem);
+                border-radius: 16px;
+            }
+
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                position: fixed;
+                height: 100vh;
+                z-index: 110;
+            }
+
+            .sidebar-toggle {
+                display: flex !important;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(0);
             }
         }
 
@@ -800,33 +926,45 @@
 
         .btn {
             padding: 0.875rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             border: none;
             font-size: 0.9375rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: capitalize;
+            letter-spacing: 0.3px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 136, 204, 0.2);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
+            box-shadow: 0 6px 16px rgba(0, 136, 204, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 136, 204, 0.2);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
             color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 136, 204, 0.1);
         }
 
         /* Notifications */
@@ -834,14 +972,14 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.95) 0%, rgba(21, 27, 41, 0.95) 100%);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
             padding: 1rem 1.5rem;
             display: flex;
             align-items: center;
             gap: 1rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
             z-index: 3000;
             animation: slideIn 0.3s ease;
             min-width: 300px;
@@ -854,23 +992,64 @@
             }
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateX(0);;
             }
         }
 
         .notification.success {
             border-color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+        }
+
+        .notification.success::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--success);
+            border-radius: 10px 0 0 10px;
         }
 
         .notification.error {
             border-color: var(--danger);
-            background: rgba(244, 63, 94, 0.1);
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(244, 63, 94, 0.05) 100%);
+            box-shadow: 0 4px 16px rgba(244, 63, 94, 0.15);
+        }
+
+        .notification.error::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--danger);
+            border-radius: 10px 0 0 10px;
         }
 
         .notification.info {
             border-color: var(--primary);
-            background: rgba(6, 182, 212, 0.1);
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.15) 0%, rgba(0, 136, 204, 0.05) 100%);
+            box-shadow: 0 4px 16px rgba(0, 136, 204, 0.15);
+        }
+
+        .notification.info::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .notification {
+            position: relative;
+            padding-left: 1.5rem;
         }
 
         .empty-state {
@@ -880,9 +1059,10 @@
         }
 
         .empty-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
-            opacity: 0.5;
+            opacity: 0.4;
+            color: var(--primary);
         }
 
         /* Progress Bar */
@@ -947,7 +1127,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <div class="logo-icon">🛡️</div>
+                    <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
                     <div class="logo-text">
                         <h1>ThreatTest</h1>
                         <p>Resilience Testing</p>
@@ -957,45 +1137,45 @@
 
             <nav class="nav-menu">
                 <button class="nav-item active" onclick="switchPage('dashboard')">
-                    <span class="nav-icon">📊</span>
+                    <span class="nav-icon"><i class="fas fa-th-large"></i></span>
                     <span>Dashboard</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('live')">
-                    <span class="nav-icon">📡</span>
+                    <span class="nav-icon"><i class="fas fa-broadcast-tower"></i></span>
                     <span>Live Monitor</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('security')">
-                    <span class="nav-icon">🛡️</span>
+                    <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
                     <span>Security Monitor</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('url')">
-                    <span class="nav-icon">🔗</span>
+                    <span class="nav-icon"><i class="fas fa-link"></i></span>
                     <span>URL Testing</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('failure')">
-                    <span class="nav-icon">⚡</span>
+                    <span class="nav-icon"><i class="fas fa-bolt"></i></span>
                     <span>Failure Testing</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('suites')">
-                    <span class="nav-icon">📚</span>
+                    <span class="nav-icon"><i class="fas fa-flask"></i></span>
                     <span>Test Suites</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('analytics')">
-                    <span class="nav-icon">📈</span>
+                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
                     <span>Analytics</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('reports')">
-                    <span class="nav-icon">📄</span>
+                    <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
                     <span>Reports</span>
                 </button>
                 <button class="nav-item" onclick="switchPage('integrations')">
-                    <span class="nav-icon">🔌</span>
+                    <span class="nav-icon"><i class="fas fa-puzzle-piece"></i></span>
                     <span>Integrations</span>
                 </button>
             </nav>
         </aside>
 
-        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -1003,7 +1183,7 @@
             <header class="top-header">
                 <div class="header-left">
                     <div class="site-selector">
-                        <div class="site-icon">🌐</div>
+                        <div class="site-icon"><i class="fas fa-globe"></i></div>
                         <div class="site-info">
                             <h3>Production Site</h3>
                             <p>api.example.com</p>
@@ -1011,7 +1191,7 @@
                     </div>
 
                     <div class="search-bar">
-                        <span>🔍</span>
+                        <span><i class="fas fa-search"></i></span>
                         <input type="text" placeholder="Search tests, URLs, or reports...">
                     </div>
                 </div>
@@ -1025,14 +1205,14 @@
             <div class="content-area">
                 <!-- Dashboard Page -->
                 <div class="page active" id="page-dashboard">
-                    <h2 class="page-title">📊 Dashboard</h2>
+                    <h2 class="page-title"><i class="fas fa-chart-line"></i> Dashboard</h2>
                     <p class="page-subtitle">Monitor your application's resilience and performance</p>
 
                     <!-- Stats Grid -->
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">📊</div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #0088cc, #0066aa);"><i class="fas fa-list"></i></div>
                             </div>
                             <div class="stat-value" id="totalTests">0</div>
                             <div class="stat-label">Total Tests</div>
@@ -1040,7 +1220,7 @@
 
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">✓</div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-check"></i></div>
                             </div>
                             <div class="stat-value" style="color: var(--success);" id="passedTests">0</div>
                             <div class="stat-label">Passed Tests</div>
@@ -1048,7 +1228,7 @@
 
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon" style="background: linear-gradient(135deg, #f43f5e, #e11d48);">✗</div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-times"></i></div>
                             </div>
                             <div class="stat-value" style="color: var(--danger);" id="failedTests">0</div>
                             <div class="stat-label">Failed Tests</div>
@@ -1056,7 +1236,7 @@
 
                         <div class="stat-card">
                             <div class="stat-header">
-                                <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">⚡</div>
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #6b3fa0, #7c3aed);"><i class="fas fa-tachometer-alt"></i></div>
                             </div>
                             <div class="stat-value" id="avgResponse">0ms</div>
                             <div class="stat-label">Avg Response Time</div>
@@ -1070,7 +1250,7 @@
                         </div>
                         <div id="recentTestsList">
                             <div class="empty-state">
-                                <div class="empty-icon">📋</div>
+                                <div class="empty-icon"><i class="fas fa-inbox"></i></div>
                                 <p>No tests run yet. Click the + button to create your first test!</p>
                             </div>
                         </div>
@@ -1079,7 +1259,7 @@
 
                 <!-- Live Monitor Page -->
                 <div class="page" id="page-live">
-                    <h2 class="page-title">📡 Live Monitor</h2>
+                    <h2 class="page-title"><i class="fas fa-broadcast-tower"></i> Live Monitor</h2>
                     <p class="page-subtitle">Real-time test execution monitoring</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
                         <div class="stat-card">
@@ -1110,21 +1290,21 @@
 
                 <!-- Security Monitor Page -->
                 <div class="page" id="page-security">
-                    <h2 class="page-title">🛡️ Security Monitor</h2>
+                    <h2 class="page-title"><i class="fas fa-shield-alt"></i> Security Monitor</h2>
                     <p class="page-subtitle">Security scanning and vulnerability detection</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
                         <div class="stat-card">
-                            <h3 style="margin-bottom: 1rem;">✓ Security Scans</h3>
+                            <h3 style="margin-bottom: 1rem;"><i class="fas fa-check-circle"></i> Security Scans</h3>
                             <div class="stat-value">0</div>
                             <p style="color: var(--text-secondary); margin-top: 0.5rem;">Completed scans</p>
                         </div>
                         <div class="stat-card">
-                            <h3 style="margin-bottom: 1rem;">🔴 Vulnerabilities</h3>
+                            <h3 style="margin-bottom: 1rem;"><i class="fas fa-exclamation-circle"></i> Vulnerabilities</h3>
                             <div class="stat-value" style="color: var(--success);">0</div>
                             <p style="color: var(--text-secondary); margin-top: 0.5rem;">Found issues</p>
                         </div>
                         <div class="stat-card">
-                            <h3 style="margin-bottom: 1rem;">📊 Pass Rate</h3>
+                            <h3 style="margin-bottom: 1rem;"><i class="fas fa-chart-pie"></i> Pass Rate</h3>
                             <div class="stat-value">100%</div>
                             <p style="color: var(--text-secondary); margin-top: 0.5rem;">Security checks passed</p>
                         </div>
@@ -1136,10 +1316,10 @@
 
                 <!-- URL Testing Page -->
                 <div class="page" id="page-url">
-                    <h2 class="page-title">🔗 URL Testing</h2>
+                    <h2 class="page-title"><i class="fas fa-link"></i> URL Testing</h2>
                     <p class="page-subtitle">Quick URL endpoint health checks and testing</p>
                     <button class="btn btn-primary" onclick="openModal('urlTest')" style="margin-bottom: 2rem; padding: 1rem 2rem;">
-                        + New URL Test
+                        <i class="fas fa-plus"></i> New URL Test
                     </button>
                     <div class="activity-section">
                         <div class="section-header">
@@ -1153,20 +1333,20 @@
 
                 <!-- Failure Testing Page -->
                 <div class="page" id="page-failure">
-                    <h2 class="page-title">⚡ Failure Testing</h2>
+                    <h2 class="page-title"><i class="fas fa-bolt"></i> Failure Testing</h2>
                     <p class="page-subtitle">Test application resilience under failure scenarios</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                         <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('network');">
-                            🌐 Network Latency
+                            <i class="fas fa-globe"></i> Network Latency
                         </button>
                         <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('timeout');">
-                            ⏱️ Timeout Test
+                            <i class="fas fa-hourglass-end"></i> Timeout Test
                         </button>
                         <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('error');">
-                            ❌ Error Rate Test
+                            <i class="fas fa-exclamation-triangle"></i> Error Rate Test
                         </button>
                         <button class="btn btn-primary" onclick="openModal('failureScenario'); runFailureScenario('load');">
-                            🔥 High Load Test
+                            <i class="fas fa-fire"></i> High Load Test
                         </button>
                     </div>
                     <div class="activity-section">
@@ -1181,16 +1361,16 @@
 
                 <!-- Test Suites Page -->
                 <div class="page" id="page-suites">
-                    <h2 class="page-title">📚 Test Suites</h2>
+                    <h2 class="page-title"><i class="fas fa-flask"></i> Test Suites</h2>
                     <p class="page-subtitle">Manage and execute test suites</p>
-                    <button class="btn btn-primary" style="margin-bottom: 2rem; padding: 1rem 2rem;">
-                        + Create Test Suite
+                    <button class="btn btn-primary" style="margin-bottom: 2rem; padding: 1rem 2rem;" onclick="createTestSuite()">
+                        <i class="fas fa-plus"></i> Create Test Suite
                     </button>
                     <div class="activity-section">
                         <div class="section-header">
                             <h3 class="section-title">Your Test Suites</h3>
                         </div>
-                        <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                        <div id="testSuitesList" style="padding: 2rem; text-align: center; color: var(--text-secondary);">
                             <p>No test suites created yet. Create one to organize your tests.</p>
                         </div>
                     </div>
@@ -1198,7 +1378,7 @@
 
                 <!-- Analytics Page -->
                 <div class="page" id="page-analytics">
-                    <h2 class="page-title">📈 Analytics</h2>
+                    <h2 class="page-title"><i class="fas fa-chart-bar"></i> Analytics</h2>
                     <p class="page-subtitle">Detailed test metrics and performance analytics</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
                         <div class="stat-card">
@@ -1221,10 +1401,10 @@
 
                 <!-- Reports Page -->
                 <div class="page" id="page-reports">
-                    <h2 class="page-title">📄 Reports</h2>
+                    <h2 class="page-title"><i class="fas fa-file-alt"></i> Reports</h2>
                     <p class="page-subtitle">Generate and view test reports</p>
                     <button class="btn btn-primary" style="margin-bottom: 2rem; padding: 1rem 2rem;">
-                        📥 Generate Report
+                        <i class="fas fa-download"></i> Generate Report
                     </button>
                     <div class="activity-section">
                         <div class="section-header">
@@ -1238,23 +1418,23 @@
 
                 <!-- Integrations Page -->
                 <div class="page" id="page-integrations">
-                    <h2 class="page-title">🔌 Integrations</h2>
+                    <h2 class="page-title"><i class="fas fa-puzzle-piece"></i> Integrations</h2>
                     <p class="page-subtitle">Connect external services and tools</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                         <div class="stat-card" style="cursor: pointer; transition: all 0.3s ease;">
-                            <h3 style="margin-bottom: 0.5rem;">🔗 Slack</h3>
+                            <h3 style="margin-bottom: 0.5rem;"><i class="fab fa-slack"></i> Slack</h3>
                             <p style="color: var(--text-secondary);">Send notifications to Slack</p>
-                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Connect</button>
+                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;" onclick="handleIntegration('slack')">Connect</button>
                         </div>
                         <div class="stat-card" style="cursor: pointer; transition: all 0.3s ease;">
-                            <h3 style="margin-bottom: 0.5rem;">📧 Email</h3>
+                            <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-envelope"></i> Email</h3>
                             <p style="color: var(--text-secondary);">Email test reports</p>
-                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Configure</button>
+                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;" onclick="handleIntegration('email')">Configure</button>
                         </div>
                         <div class="stat-card" style="cursor: pointer; transition: all 0.3s ease;">
-                            <h3 style="margin-bottom: 0.5rem;">📊 Webhook</h3>
+                            <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-exchange-alt"></i> Webhook</h3>
                             <p style="color: var(--text-secondary);">Send data via webhooks</p>
-                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Setup</button>
+                            <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;" onclick="handleIntegration('webhook')">Setup</button>
                         </div>
                     </div>
                 </div>
@@ -1265,24 +1445,24 @@
         <div class="fab-container">
             <div class="fab-menu" id="fabMenu">
                 <button class="fab-button" onclick="openModal('urlTest')">
-                    <span class="fab-button-icon">🔗</span>
+                    <span class="fab-button-icon"><i class="fas fa-link"></i></span>
                     <span>Test URLs</span>
                 </button>
                 <button class="fab-button" onclick="openModal('loadTest')">
-                    <span class="fab-button-icon">💪</span>
+                    <span class="fab-button-icon"><i class="fas fa-dumbbell"></i></span>
                     <span>Load Test</span>
                 </button>
                 <button class="fab-button" onclick="openModal('failureScenario')">
-                    <span class="fab-button-icon">⚡</span>
+                    <span class="fab-button-icon"><i class="fas fa-bolt"></i></span>
                     <span>Failure Scenarios</span>
                 </button>
                 <button class="fab-button" onclick="runSecurityScan()">
-                    <span class="fab-button-icon">🛡️</span>
+                    <span class="fab-button-icon"><i class="fas fa-shield-alt"></i></span>
                     <span>Security Scan</span>
                 </button>
             </div>
             <button class="fab-button fab-main" id="fabMain" onclick="toggleFabMenu()">
-                +
+                <i class="fas fa-plus"></i>
             </button>
         </div>
 
@@ -1291,8 +1471,8 @@
         <div class="modal" id="urlTestModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">🔗 Quick URL Test</h3>
-                    <button class="close-btn" onclick="closeModal('urlTest')">×</button>
+                    <h3 class="modal-title"><i class="fas fa-link"></i> Quick URL Test</h3>
+                    <button class="close-btn" onclick="closeModal('urlTest')"><i class="fas fa-times"></i></button>
                 </div>
                 <form onsubmit="runQuickTest(event)">
                     <div class="form-group">
@@ -1324,8 +1504,8 @@
         <div class="modal" id="loadTestModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">💪 Load Test Configuration</h3>
-                    <button class="close-btn" onclick="closeModal('loadTest')">×</button>
+                    <h3 class="modal-title"><i class="fas fa-dumbbell"></i> Load Test Configuration</h3>
+                    <button class="close-btn" onclick="closeModal('loadTest')"><i class="fas fa-times"></i></button>
                 </div>
                 <form onsubmit="runLoadTest(event)">
                     <div class="form-group">
@@ -1356,21 +1536,22 @@
         <div class="modal" id="failureScenarioModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">⚡ Failure Scenario Testing</h3>
-                    <button class="close-btn" onclick="closeModal('failureScenario')">×</button>
+                <div class="modal-header">
+                    <h3 class="modal-title"><i class="fas fa-bolt"></i> Failure Scenario Testing</h3>
+                    <button class="close-btn" onclick="closeModal('failureScenario')"><i class="fas fa-times"></i></button>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                     <button class="btn btn-primary" onclick="runFailureScenario('network'); closeModal('failureScenario')">
-                        🌐 Network Latency
+                        <i class="fas fa-globe"></i> Network Latency
                     </button>
                     <button class="btn btn-primary" onclick="runFailureScenario('timeout'); closeModal('failureScenario')">
-                        ⏱️ Timeout Test
+                        <i class="fas fa-hourglass-end"></i> Timeout Test
                     </button>
                     <button class="btn btn-primary" onclick="runFailureScenario('error'); closeModal('failureScenario')">
-                        ❌ Error Rate Test
+                        <i class="fas fa-exclamation-triangle"></i> Error Rate Test
                     </button>
                     <button class="btn btn-primary" onclick="runFailureScenario('load'); closeModal('failureScenario')">
-                        🔥 High Load Test
+                        <i class="fas fa-fire"></i> High Load Test
                     </button>
                 </div>
             </div>
@@ -1382,9 +1563,127 @@
         let tests = [];
         let testIdCounter = 1;
         let fabMenuOpen = false;
+        let testSuites = [];
+        let testSuiteIdCounter = 1;
+        let integrations = {};
 
         // API Configuration
         const API_BASE_URL = '/api'; // Change this to your backend URL
+
+        // Handle Integration Connections
+        function handleIntegration(type) {
+            const integrationNames = {
+                slack: 'Slack',
+                email: 'Email',
+                webhook: 'Webhook'
+            };
+
+            showNotification(`${integrationNames[type]} integration initiated`, 'info');
+            
+            integrations[type] = {
+                name: integrationNames[type],
+                status: 'connected',
+                timestamp: new Date(),
+                enabled: true
+            };
+
+            // Simulate connection delay
+            setTimeout(() => {
+                showNotification(`✓ ${integrationNames[type]} connected successfully!`, 'success');
+                updateIntegrationsDisplay();
+            }, 2000);
+        }
+
+        // Update Integrations Display
+        function updateIntegrationsDisplay() {
+            const page = document.getElementById('page-integrations');
+            if (!page) return;
+
+            const cards = page.querySelectorAll('.stat-card');
+            const integrationTypes = ['slack', 'email', 'webhook'];
+
+            cards.forEach((card, index) => {
+                const type = integrationTypes[index];
+                if (integrations[type] && integrations[type].enabled) {
+                    const button = card.querySelector('.btn');
+                    if (button) {
+                        button.textContent = '✓ Connected';
+                        button.style.opacity = '0.6';
+                        button.disabled = true;
+                    }
+                    card.style.opacity = '0.8';
+                }
+            });
+        }
+
+        // Create Test Suite
+        function createTestSuite() {
+            const suiteId = 'suite_' + testSuiteIdCounter++;
+            const suiteName = prompt('Enter test suite name:', 'My Test Suite');
+            
+            if (!suiteName) return;
+
+            const suite = {
+                id: suiteId,
+                name: suiteName,
+                createdAt: new Date(),
+                tests: [],
+                status: 'created'
+            };
+
+            testSuites.push(suite);
+            showNotification(`Test Suite "${suiteName}" created successfully`, 'success');
+            updateTestSuitesDisplay();
+        }
+
+        // Update Test Suites Display
+        function updateTestSuitesDisplay() {
+            const testSuitesList = document.getElementById('testSuitesList');
+            if (!testSuitesList) return;
+
+            if (testSuites.length > 0) {
+                testSuitesList.innerHTML = '<div class="test-list">' + testSuites.map(suite => `
+                    <div class="test-item" style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid var(--primary);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="margin-bottom: 0.5rem;">${suite.name}</h4>
+                                <p style="color: var(--text-muted); font-size: 0.875rem;">Created ${new Date(suite.createdAt).toLocaleDateString()} • ${suite.tests.length} tests</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="runTestSuite('${suite.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">▶ Run</button>
+                                <button class="btn btn-secondary" onclick="deleteTestSuite('${suite.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem; background: rgba(244, 63, 94, 0.2); color: var(--danger);">🗑 Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') + '</div>';
+            } else {
+                testSuitesList.innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--text-secondary);">No test suites created yet. Create one to organize your tests.</p>';
+            }
+        }
+
+        // Run Test Suite
+        function runTestSuite(suiteId) {
+            const suite = testSuites.find(s => s.id === suiteId);
+            if (!suite) return;
+
+            showNotification(`Running test suite: ${suite.name}`, 'info');
+            suite.status = 'running';
+
+            setTimeout(() => {
+                suite.status = 'completed';
+                showNotification(`Test suite "${suite.name}" completed successfully`, 'success');
+                updateTestSuitesDisplay();
+            }, 3000);
+        }
+
+        // Delete Test Suite
+        function deleteTestSuite(suiteId) {
+            if (confirm('Are you sure you want to delete this test suite?')) {
+                testSuites = testSuites.filter(s => s.id !== suiteId);
+                showNotification('Test suite deleted', 'info');
+                updateTestSuitesDisplay();
+            }
+        }
 
         // Toggle FAB Menu
         function toggleFabMenu() {
@@ -1406,28 +1705,34 @@
             document.getElementById('sidebar').classList.toggle('collapsed');
         }
 
-        // Switch Page
+        // Switch Page - OPTIMIZED
         function switchPage(page) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(p => {
-                p.classList.remove('active');
+            // Use requestAnimationFrame for smoother transition
+            requestAnimationFrame(() => {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(p => {
+                    p.classList.remove('active');
+                });
+                
+                // Remove active class from all nav items
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Show the selected page
+                const pageElement = document.getElementById('page-' + page);
+                if (pageElement) {
+                    pageElement.classList.add('active');
+                }
+                
+                // Add active class to clicked nav item
+                if (event && event.target) {
+                    const navItem = event.target.closest('.nav-item');
+                    if (navItem) {
+                        navItem.classList.add('active');
+                    }
+                }
             });
-            
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Show the selected page
-            const pageElement = document.getElementById('page-' + page);
-            if (pageElement) {
-                pageElement.classList.add('active');
-            }
-            
-            // Add active class to clicked nav item
-            event.target.closest('.nav-item').classList.add('active');
-            
-            showNotification(`Navigated to ${page}`, 'info');
         }
 
         // Modal Functions
